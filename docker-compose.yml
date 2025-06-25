@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: learnmate-postgres
+    environment:
+      POSTGRES_DB: learnmate
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - learnmate
+
+  # NestJS Backend
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: learnmate-backend
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/learnmate
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - JWT_EXPIRES_IN=7d
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - FRONTEND_URL=http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    networks:
+      - learnmate
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  learnmate:
+    driver: bridge
