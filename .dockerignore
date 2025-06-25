@@ -28,7 +28,7 @@ logs/
 
 # Runtime data
 pids/
-*.pid
+*.pidwith
 *.seed
 *.pid.lock
 
